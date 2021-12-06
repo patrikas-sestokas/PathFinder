@@ -2,12 +2,13 @@
 
 # You may need to import some classes of the controller module. Ex:
 #  from controller import Robot, Motor, DistanceSensor
-from controller import Robot
+from controller import Supervisor
 
 def run_robot(robot):
-    
 
-# get the time step of the current world.
+    def is_finish_line(robot_vec, finish_vec):
+        return robot_vec[0] < finish_vec[0] + 0.1 and robot_vec[0] > finish_vec[0] - 0.1 and robot_vec[2] < finish_vec[2] + 0.1 and robot_vec[2] > finish_vec[2] - 0.1
+    
     timestep = int(robot.getBasicTimeStep())
     max_speed = 6.28
     
@@ -20,6 +21,13 @@ def run_robot(robot):
     right_motor.setPosition(float('inf'))
     right_motor.setVelocity(0.0)
     
+    gps = robot.getGPS('gps')
+    gps.enable(1)
+    
+    finish_line_node = robot.getFromDef("finish_line")
+    finish_line_translation = finish_line_node.getField("translation")
+    finish_line_vector = finish_line_translation.getSFVec3f()
+    
     prox_sensors = []
     for ind in range(8):
         sensor_name = 'ps' + str(ind)
@@ -29,6 +37,11 @@ def run_robot(robot):
     # Main loop:
     # - perform simulation steps until Webots is stopping the controller
     while robot.step(timestep) != -1:
+        robot_pos = gps.getValues()
+        if is_finish_line(robot_pos, finish_line_vector):
+            max_speed = 0
+            print("LABYRINTH SOLVED!")
+            
         for ind in range(8):
             pass#print(f"ind: {ind}, val: {prox_sensors[ind].getValue()}")
             
@@ -53,7 +66,7 @@ def run_robot(robot):
                 left_speed = max_speed / 8
                 right_speed = max_speed
             if left_corner:
-                print("Too close, right")
+                #print("Too close, right")
                 left_speed = max_speed
                 right_speed = max_speed / 8
             
@@ -62,5 +75,5 @@ def run_robot(robot):
 
 # Enter here exit cleanup code.
 if __name__ == "__main__":
-    my_robot = Robot()
+    my_robot = Supervisor()
     run_robot(my_robot)

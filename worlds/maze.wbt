@@ -181,6 +181,10 @@ E-puck {
   controller "navigator"
   supervisor TRUE
   turretSlot [
+    Pen {
+      inkColor 0 1 0
+      inkDensity 1
+    }
     GPS {
     }
   ]

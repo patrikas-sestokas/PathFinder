@@ -3,6 +3,8 @@
 # You may need to import some classes of the controller module. Ex:
 #  from controller import Robot, Motor, DistanceSensor
 from controller import Supervisor
+import math
+from controller import MouseState
 
 
 class Tile:
@@ -23,7 +25,7 @@ class Tile:
         return f'{{x: {self.x}, y: {self.y}}}'
 
     def as_coordinates(self):
-        return self.x * 4 + self.tile_size / 2, self.y * 4 + self.tile_size / 2
+        return self.x * self.tile_size + self.tile_size / 2, self.y * self.tile_size + self.tile_size / 2
 
 
 def setup_sensors(robot, time_step):
@@ -37,10 +39,18 @@ def setup_sensors(robot, time_step):
 
     gps = robot.getDevice('gps')
     gps.enable(1)
+
+    pen = robot.getDevice('pen')
+    pen.setInkColor(0x00FF00, 1)
+    pen.write(True)
+
+    mouse = robot.getMouse()
+    mouse.enable(100)
+
     proximity_sensors = [robot.getDevice(f'ps{idx}') for idx in range(8)]
     for sensor in proximity_sensors:
         sensor.enable(time_step)
-    return [left_motor, right_motor, gps, proximity_sensors]
+    return [left_motor, right_motor, gps, pen, mouse, proximity_sensors]
 
 
 def is_finish_line(robot_vec, finish_vec):
@@ -81,7 +91,7 @@ def run_robot(robot):
     timeStep = int(robot.getBasicTimeStep())
     max_speed = 6.28
 
-    left_motor, right_motor, gps, proximity_sensors = setup_sensors(robot, timeStep)
+    left_motor, right_motor, gps, pen, mouse, proximity_sensors = setup_sensors(robot, timeStep)
 
     finish_line_node = robot.getFromDef("finish_line")
     finish_line_translation = finish_line_node.getField("translation")
@@ -107,7 +117,7 @@ def run_robot(robot):
                     path = path[:path.index(tile) + 1]
                 else:
                     path.append(tile)
-                print(path)
+                #print(path)
             left_speed, right_speed = mode_1(proximity_sensors, max_speed)
 
         elif mode == 2:
@@ -118,6 +128,12 @@ def run_robot(robot):
 
         else:
             raise Exception(f'Unknown mode {mode}')
+
+        point = (mouse.getState().x, mouse.getState().z)
+        if not math.isnan(point[0]):
+            dx = point[0] - path[0].as_coordinates()[0]
+            dz = point[1] - path[0].as_coordinates()[1]
+            print(math.degrees(math.atan2(dz, dx)))
 
         left_motor.setVelocity(left_speed)
         right_motor.setVelocity(right_speed)

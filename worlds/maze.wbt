@@ -3,8 +3,8 @@ WorldInfo {
   coordinateSystem "NUE"
 }
 Viewpoint {
-  orientation -0.8226070968881664 0.4761364339626654 0.31082416315746614 0.978545487313187
-  position 1.3344400312928844 1.3806130805255208 1.6265184518839768
+  orientation 1 0 0 4.71238898038469
+  position 0.8469706853732121 1.24897605662057 0.9153541958967364
 }
 TexturedBackground {
 }
@@ -177,10 +177,12 @@ Wall {
   size 0.25 0.1 0.01
 }
 E-puck {
-  translation 0.87 0.0001 0.87
+  translation 0.82 0.0001 0.87
   controller "navigator"
   supervisor TRUE
   turretSlot [
+    Compass {
+    }
     Pen {
       inkColor 0 1 0
       inkDensity 1

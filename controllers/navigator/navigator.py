@@ -45,13 +45,13 @@ def setup_sensors(robot, time_step):
     mouse.enable(250)
     mouse.enable3dPosition()
 
-    compass = robot.getDevice('compass')
-    compass.enable(1)
+    inertial_unit = robot.getDevice('inertial unit')
+    inertial_unit.enable(1)
 
     proximity_sensors = [robot.getDevice(f'ps{idx}') for idx in range(8)]
     for sensor in proximity_sensors:
         sensor.enable(time_step)
-    return [left_motor, right_motor, gps, mouse, compass, proximity_sensors]
+    return [left_motor, right_motor, gps, mouse, inertial_unit, proximity_sensors]
 
 
 def is_finish_line(robot_vec, finish_vec):
@@ -88,29 +88,26 @@ def mode_1(proximity_sensors, max_speed):
     return left_speed, right_speed
 
 
-def get_bearing_in_degrees(compass):
-    north = compass.getValues()
-    rad = math.atan2(north[0], north[2])
-    bearing = (rad - 1.5714) / math.pi * 180.0
-    if bearing < 0.0:
-        bearing = bearing + 360.0
-    return bearing
+def mode_2(robot_pos, tile, max_speed, compass):
+    absolute = get_absolute_angle_in_degrees(robot_pos, tile)
+    bearing = get_bearing_in_degrees(compass)
+    relative = math.fabs(absolute - bearing)
 
 
-def get_absolute_angle_in_degrees(pointA, pointB):
-    dx = pointB[0] - pointA[0]  # path[-1].as_coordinates()[0]
-    dz = pointB[1] - pointA[2]  # path[-1].as_coordinates()[1]
-    absolute_angle = math.degrees(math.atan2(dz, dx))
-    if absolute_angle < 0.0:
-        absolute_angle = absolute_angle + 360.0
-    return absolute_angle
+def get_angle(robot_pos, yaw, tile_pos):
+    A_B = [tile_pos[0] - robot_pos[0], tile_pos[1] - robot_pos[2]]
+    A_F = [numpy.sin(yaw), numpy.cos(yaw)]
+    A_B = A_B / numpy.linalg.norm(A_B)
+    dot = numpy.dot(A_B, A_F)
+    det = numpy.linalg.det([A_B, A_F])
+    return numpy.arctan2(det, dot)
 
 
 def run_robot(robot):
     timeStep = int(robot.getBasicTimeStep())
     max_speed = 6.28
 
-    left_motor, right_motor, gps, mouse, compass, proximity_sensors = setup_sensors(robot, timeStep)
+    left_motor, right_motor, gps, mouse, inertial_unit, proximity_sensors = setup_sensors(robot, timeStep)
 
     finish_line_node = robot.getFromDef("finish_line")
     finish_line_translation = finish_line_node.getField("translation")
@@ -150,9 +147,11 @@ def run_robot(robot):
 
         point = (mouse.getState().x, mouse.getState().z)
         if not math.isnan(point[0]):
-            absolute = get_absolute_angle_in_degrees(robot_pos, point)
-            bearing = get_bearing_in_degrees(compass)
-            print(math.fabs(absolute - bearing))
+            yaw = inertial_unit.getRollPitchYaw()[2]
+            print(get_angle(robot_pos, yaw, point))
+            # absolute = get_absolute_angle_in_degrees(robot_pos, point)
+            # bearing = get_bearing_in_degrees(compass)
+            # print(absolute - bearing)
             
         left_motor.setVelocity(0)
         right_motor.setVelocity(0)

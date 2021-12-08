@@ -5,6 +5,7 @@
 from controller import Supervisor
 from controller import MouseState
 import math
+import numpy
 
 
 class Tile:
@@ -40,10 +41,6 @@ def setup_sensors(robot, time_step):
     gps = robot.getDevice('gps')
     gps.enable(1)
 
-    pen = robot.getDevice('pen')
-    pen.setInkColor(0x00FF00, 1)
-    pen.write(True)
-
     mouse = robot.getMouse()
     mouse.enable(250)
     mouse.enable3dPosition()
@@ -54,7 +51,7 @@ def setup_sensors(robot, time_step):
     proximity_sensors = [robot.getDevice(f'ps{idx}') for idx in range(8)]
     for sensor in proximity_sensors:
         sensor.enable(time_step)
-    return [left_motor, right_motor, gps, pen, mouse, compass, proximity_sensors]
+    return [left_motor, right_motor, gps, mouse, compass, proximity_sensors]
 
 
 def is_finish_line(robot_vec, finish_vec):
@@ -94,7 +91,7 @@ def mode_1(proximity_sensors, max_speed):
 def get_bearing_in_degrees(compass):
     north = compass.getValues()
     rad = math.atan2(north[0], north[2])
-    bearing = (rad - 1.5708) / 3.14 * 180.0
+    bearing = (rad - 1.5714) / math.pi * 180.0
     if bearing < 0.0:
         bearing = bearing + 360.0
     return bearing
@@ -104,14 +101,16 @@ def get_absolute_angle_in_degrees(pointA, pointB):
     dx = pointB[0] - pointA[0]  # path[-1].as_coordinates()[0]
     dz = pointB[1] - pointA[2]  # path[-1].as_coordinates()[1]
     absolute_angle = math.degrees(math.atan2(dz, dx))
-    return absolute_angle % 360
+    if absolute_angle < 0.0:
+        absolute_angle = absolute_angle + 360.0
+    return absolute_angle
 
 
 def run_robot(robot):
     timeStep = int(robot.getBasicTimeStep())
-    max_speed = 0
+    max_speed = 6.28
 
-    left_motor, right_motor, gps, pen, mouse, compass, proximity_sensors = setup_sensors(robot, timeStep)
+    left_motor, right_motor, gps, mouse, compass, proximity_sensors = setup_sensors(robot, timeStep)
 
     finish_line_node = robot.getFromDef("finish_line")
     finish_line_translation = finish_line_node.getField("translation")
@@ -153,11 +152,10 @@ def run_robot(robot):
         if not math.isnan(point[0]):
             absolute = get_absolute_angle_in_degrees(robot_pos, point)
             bearing = get_bearing_in_degrees(compass)
-            print(f"absolute: {absolute}, bearing: {bearing}")
-            print(f"relative: {math.fabs(absolute - bearing)}")
-
-        left_motor.setVelocity(left_speed)
-        right_motor.setVelocity(right_speed)
+            print(math.fabs(absolute - bearing))
+            
+        left_motor.setVelocity(0)
+        right_motor.setVelocity(0)
 
 
 if __name__ == "__main__":

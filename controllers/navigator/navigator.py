@@ -88,16 +88,25 @@ def mode_1(proximity_sensors, max_speed):
     return left_speed, right_speed
 
 
-def mode_2(robot_pos, tile, max_speed, compass):
-    absolute = get_absolute_angle_in_degrees(robot_pos, tile)
-    bearing = get_bearing_in_degrees(compass)
-    relative = math.fabs(absolute - bearing)
+def mode_2(angle, max_speed):
+    old_range = numpy.pi
+    new_range = max_speed - -max_speed
+    value = (numpy.abs(angle) * new_range / old_range) + -max_speed
+    if angle > 0:
+        return min(2 * abs(value), max_speed), value
+    else:
+        return value, min(2 * abs(value), max_speed)
 
 
-def get_angle(robot_pos, yaw, tile_pos):
+def get_distance(robot_pos, tile_pos):
+    A_B = [tile_pos[0] - robot_pos[0], tile_pos[1] - robot_pos[2]]
+    return numpy.linalg.norm(A_B)
+
+
+def get_angle(robot_pos, yaw, tile_pos, distance):
     A_B = [tile_pos[0] - robot_pos[0], tile_pos[1] - robot_pos[2]]
     A_F = [numpy.sin(yaw), numpy.cos(yaw)]
-    A_B = A_B / numpy.linalg.norm(A_B)
+    A_B = A_B / distance
     dot = numpy.dot(A_B, A_F)
     det = numpy.linalg.det([A_B, A_F])
     return numpy.arctan2(det, dot)
@@ -114,47 +123,52 @@ def run_robot(robot):
     finish_line_vector = finish_line_translation.getSFVec3f()
 
     path = []
-
     mode = 1
+    distance = float('inf')
 
     # Main loop:
     while robot.step(timeStep) != -1:
         robot_pos = gps.getValues()
-        if is_finish_line(robot_pos, finish_line_vector):
+        if mode == 1 and is_finish_line(robot_pos, finish_line_vector):
             left_motor.setVelocity(0)
             right_motor.setVelocity(0)
             mode = 2
 
-        tile = Tile(robot_pos)
-
         if mode == 1:
+            tile = Tile(robot_pos)
             if len(path) == 0 or path[-1] != tile:
                 if tile in path:
                     path = path[:path.index(tile) + 1]
                 else:
                     path.append(tile)
-                # print(path)
+                print(path)
             left_speed, right_speed = mode_1(proximity_sensors, max_speed)
 
         elif mode == 2:
-            print("LABYRINTH SOLVED!")
-            left_motor.setVelocity(0)
-            right_motor.setVelocity(0)
-            break
-
+            yaw = inertial_unit.getRollPitchYaw()[2]
+            new_distance = get_distance(robot_pos, path[-1].as_coordinates())
+            if new_distance < 0.05:
+                path = path[:-1]
+                if len(path) == 0:
+                    print("Exploration finished!")
+                    left_motor.setVelocity(0)
+                    right_motor.setVelocity(0)
+                    break
+                distance = get_distance(robot_pos, path[-1].as_coordinates())
+            else:
+                distance = new_distance
+            angle = get_angle(robot_pos, yaw, path[-1].as_coordinates(), distance)
+            left_speed, right_speed = mode_2(angle, max_speed)
         else:
             raise Exception(f'Unknown mode {mode}')
 
-        point = (mouse.getState().x, mouse.getState().z)
-        if not math.isnan(point[0]):
-            yaw = inertial_unit.getRollPitchYaw()[2]
-            print(get_angle(robot_pos, yaw, point))
-            # absolute = get_absolute_angle_in_degrees(robot_pos, point)
-            # bearing = get_bearing_in_degrees(compass)
-            # print(absolute - bearing)
+        # point = (mouse.getState().x, mouse.getState().z)
+        # if not math.isnan(point[0]):
+        #     yaw = inertial_unit.getRollPitchYaw()[2]
+        #     print(get_angle(robot_pos, yaw, point))
             
-        left_motor.setVelocity(0)
-        right_motor.setVelocity(0)
+        left_motor.setVelocity(left_speed)
+        right_motor.setVelocity(right_speed)
 
 
 if __name__ == "__main__":

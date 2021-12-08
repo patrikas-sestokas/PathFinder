@@ -91,19 +91,26 @@ def mode_1(proximity_sensors, max_speed):
 def get_bearing_in_degrees(compass):
     north = compass.getValues()
     rad = math.atan2(north[0], north[2])
-    bearing = (rad - 1.5714) / math.pi * 180.0
-    if bearing < 0.0:
-        bearing = bearing + 360.0
-    return bearing
+    return (math.degrees(rad)) % 360
 
 
 def get_absolute_angle_in_degrees(pointA, pointB):
-    dx = pointB[0] - pointA[0]  # path[-1].as_coordinates()[0]
-    dz = pointB[1] - pointA[2]  # path[-1].as_coordinates()[1]
-    absolute_angle = math.degrees(math.atan2(dz, dx))
-    if absolute_angle < 0.0:
-        absolute_angle = absolute_angle + 360.0
-    return absolute_angle
+    dx = pointB[0] - pointA[0]
+    dz = pointB[1] - pointA[2]
+    return (math.degrees(math.atan2(dz, dx)) + 180) % 360
+    
+    
+def get_turn_angle(pointA, pointB, compass):
+    target = get_absolute_angle_in_degrees(pointA, pointB)
+    current = get_bearing_in_degrees(compass)
+    turn_angle = target - current
+    if turn_angle > 180:
+        turn_angle -= 360
+    elif turn_angle <= -180:
+        turn_angle += 360
+    #print(f"target: {target}")
+    #print(f"current: {current}")
+    return turn_angle
 
 
 def run_robot(robot):
@@ -150,9 +157,9 @@ def run_robot(robot):
 
         point = (mouse.getState().x, mouse.getState().z)
         if not math.isnan(point[0]):
-            absolute = get_absolute_angle_in_degrees(robot_pos, point)
-            bearing = get_bearing_in_degrees(compass)
-            print(math.fabs(absolute - bearing))
+            turn_angle = get_turn_angle(robot_pos, point, compass)
+            print(turn_angle)
+            
             
         left_motor.setVelocity(0)
         right_motor.setVelocity(0)

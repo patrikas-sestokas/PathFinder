@@ -3,8 +3,8 @@ WorldInfo {
   coordinateSystem "NUE"
 }
 Viewpoint {
-  orientation 0.995218407014519 -0.07471990603297926 -0.06290674035352557 4.878914117609226
-  position 0.7758999353815267 2.8668449978642934 1.103939293674351
+  orientation 0.9857455900698339 -0.1374382473153093 -0.09703792986647683 5.040077726839234
+  position 0.8386901728967139 2.389419601028813 1.4228440166685978
 }
 TexturedBackground {
 }
@@ -54,6 +54,12 @@ Wall {
   translation -0.4998 0 -0.5
   rotation 0 1 0 1.57
   name "wall(7)"
+  size 0.5 0.1 0.01
+}
+Wall {
+  translation -0.75 0 -0.2502
+  rotation 0 1 0 1.57
+  name "wall(4)"
   size 0.5 0.1 0.01
 }
 DEF finish_line Floor {
@@ -132,18 +138,6 @@ Wall {
   translation 0.75 0 -0.6246
   rotation 0 1 0 1.57
   name "wall(9)"
-  size 0.25 0.1 0.01
-}
-Wall {
-  translation -0.75 0 -0.3754
-  rotation 0 1 0 1.57
-  name "wall(4)"
-  size 0.25 0.1 0.01
-}
-Wall {
-  translation -0.7502 0 -0.1254
-  rotation 0 1 0 1.57
-  name "wall(11)"
   size 0.25 0.1 0.01
 }
 Wall {

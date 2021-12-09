@@ -4,8 +4,8 @@
 #  from controller import Robot, Motor, DistanceSensor
 from controller import Supervisor
 from controller import MouseState
-import math
 import numpy
+from scipy import interpolate
 
 
 class Tile:
@@ -89,13 +89,12 @@ def mode_1(proximity_sensors, max_speed):
 
 
 def mode_2(angle, max_speed):
-    old_range = numpy.pi
-    new_range = max_speed - -max_speed
-    value = (numpy.abs(angle) * new_range / old_range) + -max_speed
-    if angle > 0:
-        return min(2 * abs(value), max_speed), value
-    else:
-        return value, min(2 * abs(value), max_speed)
+    # necessary offset so that "pi" and "-pi" angles would result in (0.75pi, 0.75pi) wheel rotation ratios
+    offset = -0.75 * numpy.pi
+    angle_vector = numpy.array([numpy.sin(angle + offset), numpy.cos(angle + offset)])
+    # rescaling unit direction vector to actual vehicle speed
+    angle_vector *= max_speed
+    return angle_vector
 
 
 def get_distance(robot_pos, tile_pos):
@@ -132,6 +131,7 @@ def run_robot(robot):
         if mode == 1 and is_finish_line(robot_pos, finish_line_vector):
             left_motor.setVelocity(0)
             right_motor.setVelocity(0)
+            path = path[:-1]
             mode = 2
 
         if mode == 1:
@@ -141,13 +141,13 @@ def run_robot(robot):
                     path = path[:path.index(tile) + 1]
                 else:
                     path.append(tile)
-                print(path)
             left_speed, right_speed = mode_1(proximity_sensors, max_speed)
 
         elif mode == 2:
             yaw = inertial_unit.getRollPitchYaw()[2]
             new_distance = get_distance(robot_pos, path[-1].as_coordinates())
-            if new_distance < 0.05:
+            # 0.125 path smoothness modifier, should not exceed tile_size / 2, lets the robot cut corners
+            if new_distance < 0.125:
                 path = path[:-1]
                 if len(path) == 0:
                     print("Exploration finished!")
@@ -160,10 +160,10 @@ def run_robot(robot):
             angle = get_angle(robot_pos, yaw, path[-1].as_coordinates(), distance)
             left_speed, right_speed = mode_2(angle, max_speed)
         else:
-            raise Exception(f'Unknown mode {mode}')
+            raise Exception(f'Unknown mode {mode}!')
 
         # point = (mouse.getState().x, mouse.getState().z)
-        # if not math.isnan(point[0]):
+        # if not numpy.isnan(point[0]):
         #     yaw = inertial_unit.getRollPitchYaw()[2]
         #     print(get_angle(robot_pos, yaw, point))
             

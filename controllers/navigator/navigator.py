@@ -6,6 +6,7 @@ from controller import Supervisor
 from controller import MouseState
 import numpy
 from scipy import interpolate
+from controller import Pen
 
 
 class Tile:
@@ -47,6 +48,10 @@ def setup_sensors(robot, time_step):
 
     inertial_unit = robot.getDevice('inertial unit')
     inertial_unit.enable(1)
+    
+    pen = robot.getDevice('pen')
+    pen.write(True)
+   
 
     proximity_sensors = [robot.getDevice(f'ps{idx}') for idx in range(8)]
     for sensor in proximity_sensors:

@@ -1,5 +1,6 @@
 #VRML_SIM R2021b utf8
 WorldInfo {
+  basicTimeStep 26.3
   coordinateSystem "NUE"
 }
 Viewpoint {
@@ -288,6 +289,7 @@ E-puck {
       inkColor 0 1 0
       inkDensity 1
       leadSize 0.013
+      write FALSE
     }
   ]
 }

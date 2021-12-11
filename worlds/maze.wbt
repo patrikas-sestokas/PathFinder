@@ -287,7 +287,7 @@ E-puck {
       rotation 5.01287e-07 5.01287e-07 1 1.5708
       inkColor 0 1 0
       inkDensity 1
-      leadSize 0.02
+      leadSize 0.013
     }
   ]
 }

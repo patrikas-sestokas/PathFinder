@@ -50,13 +50,13 @@ def setup_sensors(robot, time_step):
     inertial_unit.enable(1)
     
     pen = robot.getDevice('pen')
-    pen.write(True)
+    pen.write(False)
    
 
     proximity_sensors = [robot.getDevice(f'ps{idx}') for idx in range(8)]
     for sensor in proximity_sensors:
         sensor.enable(time_step)
-    return [left_motor, right_motor, gps, mouse, inertial_unit, proximity_sensors]
+    return [left_motor, right_motor, gps, mouse, inertial_unit, proximity_sensors, pen]
 
 
 def is_finish_line(robot_vec, finish_vec):
@@ -120,7 +120,7 @@ def run_robot(robot):
     timeStep = int(robot.getBasicTimeStep())
     max_speed = 6.28
 
-    left_motor, right_motor, gps, mouse, inertial_unit, proximity_sensors = setup_sensors(robot, timeStep)
+    left_motor, right_motor, gps, mouse, inertial_unit, proximity_sensors, pen = setup_sensors(robot, timeStep)
 
     finish_line_node = robot.getFromDef("finish_line")
     finish_line_translation = finish_line_node.getField("translation")
@@ -149,6 +149,7 @@ def run_robot(robot):
             left_speed, right_speed = mode_1(proximity_sensors, max_speed)
 
         elif mode == 2:
+            pen.write(True)
             yaw = inertial_unit.getRollPitchYaw()[2]
             new_distance = get_distance(robot_pos, path[-1].as_coordinates())
             # 0.125 path smoothness modifier, should not exceed tile_size / 2, lets the robot cut corners

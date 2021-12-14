@@ -76,7 +76,7 @@ def setup_sensors(robot, time_step):
     inertial_unit.enable(1)
 
     pen = robot.getDevice('pen')
-    pen.write(False)
+    pen.setInkColor(0xFF0000, 1)
 
     proximity_sensors = [robot.getDevice(f'ps{idx}') for idx in range(8)]
     for sensor in proximity_sensors:
@@ -210,6 +210,7 @@ def run_robot(robot):
             print(f'First phase time: {robot.getTime()}s')
             firstModeTime = robot.getTime()
             mode = 2
+            pen.setInkColor(0x00FF00, 1)
             
         if mode == 1:
             tile = Tile(robot_pos)

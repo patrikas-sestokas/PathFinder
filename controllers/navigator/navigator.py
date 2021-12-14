@@ -1,33 +1,58 @@
-"""navigator controller."""
-
-# You may need to import some classes of the controller module. Ex:
-#  from controller import Robot, Motor, DistanceSensor
-from controller import Supervisor
-from controller import MouseState
+from controller import Supervisor, MouseState, Pen
 import numpy
-from scipy import interpolate
-from controller import Pen
 
-
+'''
+Class for converting arbitrary coordinates to specific tile
+'''
 class Tile:
     x: int
     y: int
     tile_size = 0.25
 
+    '''
+    Calculates which tile the robot's position refers to
+    @param robot_pos: Robot's current position in x, y, z
+    '''
+
     def __init__(self, robot_pos):
         self.x = robot_pos[0] // self.tile_size
         self.y = robot_pos[2] // self.tile_size
+
+    '''
+    Compares tile objects and checks if they are equal
+    @param other: The other tile
+    @return: True or False
+    '''
 
     def __eq__(self, other):
         if not isinstance(other, Tile):
             return False
         return other.x == self.x and other.y == self.y
 
+    '''
+    Display tile coordinates
+    @return: Coordinates in text
+    '''
+
     def __repr__(self):
         return f'{{x: {self.x}, y: {self.y}}}'
 
+    '''
+    Converts tile coordinates to the original coordinates
+    @return: Converted x and y coordinates
+    '''
+
     def as_coordinates(self):
         return self.x * self.tile_size + self.tile_size / 2, self.y * self.tile_size + self.tile_size / 2
+
+
+'''
+Setups robot's sensors: sets initial motor position and velocity, enables gps,
+enables robot's inertial unit sensor and setups pen for drawing on mode 2
+@robot: Current robot the controller is operates
+@time_step: Increment executed at each iteration of the control loop
+@return: Setuped sensors
+'''
 
 
 def setup_sensors(robot, time_step):
@@ -48,10 +73,9 @@ def setup_sensors(robot, time_step):
 
     inertial_unit = robot.getDevice('inertial unit')
     inertial_unit.enable(1)
-    
+
     pen = robot.getDevice('pen')
     pen.write(False)
-   
 
     proximity_sensors = [robot.getDevice(f'ps{idx}') for idx in range(8)]
     for sensor in proximity_sensors:
@@ -59,11 +83,28 @@ def setup_sensors(robot, time_step):
     return [left_motor, right_motor, gps, mouse, inertial_unit, proximity_sensors, pen]
 
 
+'''
+Method checks if the robot reached the finish line
+@robot_vec: Current robot position in x, y, z
+@finish_vec: Finish line position in x, y, z
+@return: Boolean value which determines whether the robot is on the finish line
+'''
 def is_finish_line(robot_vec, finish_vec):
     return finish_vec[0] + 0.1 > robot_vec[0] > finish_vec[0] - 0.1 and finish_vec[2] + 0.1 > robot_vec[2] > \
            finish_vec[2] - 0.1
 
 
+'''
+Method operates the robot through the maze using wall follower algorithm:
+gets the front, left and left corner proximity sensor distances and checks
+whether they are greater than 80. If the robot's front sensor detects an object
+then the robot turns right. If there's no object in front of the robot then it
+drives near the left wall keeping its distance and turning right if the robot gets
+too close to the wall
+@proximity_sensors: Robot's proximity sensor data
+@max_speed: Robot's max speed
+@return: New motor speed values
+'''
 def mode_1(proximity_sensors, max_speed):
     left_wall = proximity_sensors[5].getValue() > 80
     left_corner = proximity_sensors[6].getValue() > 80
@@ -93,6 +134,12 @@ def mode_1(proximity_sensors, max_speed):
     return left_speed, right_speed
 
 
+'''
+Calculates the angle vector needed to reach tile's destination
+@angle: Relative turn angle to the tile from robot's current facing point
+@max_speed: Robot's motor max_speed
+@return: Angle vector for the next tile
+'''
 def mode_2(angle, max_speed):
     # necessary offset so that "pi" and "-pi" angles would result in (0.75pi, 0.75pi) wheel rotation ratios
     offset = -0.75 * numpy.pi
@@ -102,11 +149,24 @@ def mode_2(angle, max_speed):
     return angle_vector
 
 
+'''
+Gets the distance between the robot and the tile
+@robot_pos: Current robot position in x, y, z
+@tile_pos: Tile position in x, y, z
+'''
 def get_distance(robot_pos, tile_pos):
     A_B = [tile_pos[0] - robot_pos[0], tile_pos[1] - robot_pos[2]]
     return numpy.linalg.norm(A_B)
 
 
+'''
+Gets the relative angle which is needed to turn the robot to the tile's direction 
+@robot_pos: Current robot position in x, y, z
+@yaw: Angle between a robot's direction of motion and the relative tile vector.
+@tile_pos: Tile position in x, y, z
+@distance: Distance between the robot and the tile
+@return: Turn angle from robot's direction to the tile
+'''
 def get_angle(robot_pos, yaw, tile_pos, distance):
     A_B = [tile_pos[0] - robot_pos[0], tile_pos[1] - robot_pos[2]]
     A_F = [numpy.sin(yaw), numpy.cos(yaw)]
@@ -116,6 +176,15 @@ def get_angle(robot_pos, yaw, tile_pos, distance):
     return numpy.arctan2(det, dot)
 
 
+'''
+Method setups robot's sensors and runs it in a loop getting it's current position
+and managing robot's modes depending on the scenario. Initially robot operates
+on the first mode using the wall following algorithm and constructing the shortest path. 
+On reaching the maze exit it switches to the second mode driving back to it's initial
+position from the constructed path list. Upon reaching the initial position on the second
+mode, the robot stops and prints out a message
+@robot: Instance of a robot object
+'''
 def run_robot(robot):
     timeStep = int(robot.getBasicTimeStep())
     max_speed = 6.28
@@ -172,7 +241,7 @@ def run_robot(robot):
         # if not numpy.isnan(point[0]):
         #     yaw = inertial_unit.getRollPitchYaw()[2]
         #     print(get_angle(robot_pos, yaw, point))
-            
+
         left_motor.setVelocity(left_speed)
         right_motor.setVelocity(right_speed)
 

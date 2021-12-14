@@ -137,8 +137,10 @@ def run_robot(robot):
             left_motor.setVelocity(0)
             right_motor.setVelocity(0)
             path = path[:-1]
+            print(f'First phase time: {robot.getTime()}s')
+            firstModeTime = robot.getTime()
             mode = 2
-
+            
         if mode == 1:
             tile = Tile(robot_pos)
             if len(path) == 0 or path[-1] != tile:
@@ -156,6 +158,7 @@ def run_robot(robot):
             if new_distance < 0.125:
                 path = path[:-1]
                 if len(path) == 0:
+                    print(f'Second phase time: {robot.getTime() - firstModeTime}s')
                     print("Exploration finished!")
                     left_motor.setVelocity(0)
                     right_motor.setVelocity(0)

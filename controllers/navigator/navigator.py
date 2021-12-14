@@ -5,7 +5,6 @@
 from controller import Supervisor
 from controller import MouseState
 import numpy
-from scipy import interpolate
 from controller import Pen
 
 

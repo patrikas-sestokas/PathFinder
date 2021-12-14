@@ -1,0 +1,201 @@
+#VRML_SIM R2021b utf8
+WorldInfo {
+  basicTimeStep 26.3
+  coordinateSystem "NUE"
+}
+Viewpoint {
+  orientation -0.9996198045502134 0.022721171213170594 0.01562033065255071 1.2049013981496974
+  position -0.011914409360810407 3.970589475878211 1.6427096658025508
+}
+RectangleArena {
+  floorSize 2 2
+  floorTileSize 2 2
+}
+TexturedBackground {
+}
+TexturedBackgroundLight {
+}
+Wall {
+  translation 0.125 0 0.5
+  name "wall(16)"
+  size 0.75 0.1 0.01
+}
+Wall {
+  translation 0.4998 0 0.625
+  rotation 0 1 0 1.57
+  name "wall(18)"
+  size 0.75 0.1 0.01
+}
+Wall {
+  translation -0.5 0 0.3742
+  rotation 0 1 0 1.57
+  name "wall(21)"
+  size 0.75 0.1 0.01
+}
+Wall {
+  translation -0.7502 0 0.624
+  rotation 0 1 0 1.57
+  name "wall(25)"
+  size 0.75 0.1 0.01
+}
+Wall {
+  translation -0.1252 0 -0.5
+  rotation 0 1 0 3.1408
+  name "wall(5)"
+  size 1.25 0.1 0.01
+}
+Wall {
+  translation -0.3754 0 -0.2502
+  rotation 0 1 0 3.1408
+  name "wall(20)"
+  size 1.25 0.1 0.01
+}
+Wall {
+  translation -0.2506 0 0.5002
+  rotation 0 1 0 1.57
+  name "wall(7)"
+  size 0.5 0.1 0.01
+}
+Wall {
+  translation -0.000200007 0 0.000399082
+  rotation 0 1 0 1.57
+  name "wall(22)"
+  size 0.5 0.1 0.01
+}
+Wall {
+  translation 0.4998 0 0.000795423
+  rotation 0 1 0 3.1408
+  name "wall(12)"
+  size 0.5 0.1 0.01
+}
+Wall {
+  translation 0.5 0 -0.249204
+  rotation 0 1 0 1.57
+  name "wall(11)"
+  size 0.5 0.1 0.01
+}
+Wall {
+  translation 0.7502 0 -0.499005
+  rotation 0 1 0 1.57
+  name "wall(3)"
+  size 0.5 0.1 0.01
+}
+Wall {
+  translation 0.2504 0 -0.749403
+  rotation 0 1 0 1.57
+  name "wall(2)"
+  size 0.5 0.1 0.01
+}
+DEF finish_line Floor {
+  translation -0.125 0.005 -0.875
+  name "finish_line"
+  size 0.25 0.25
+  tileSize 0.25 0.25
+  appearance Appearance {
+    material Material {
+      diffuseColor 1 1 0
+    }
+  }
+}
+Wall {
+  translation -0.125 0 -0.75
+  name "wall(9)"
+  size 0.25 0.1 0.01
+}
+Wall {
+  translation 0.125 0 0.25
+  name "wall(23)"
+  size 0.25 0.1 0.01
+}
+Wall {
+  translation 0.125 0 0.75
+  name "wall(26)"
+  size 0.25 0.1 0.01
+}
+Wall {
+  translation -0.125 0 0
+  name "wall(24)"
+  size 0.25 0.1 0.01
+}
+Wall {
+  translation -0.375 0 0.75
+  name "wall(17)"
+  size 0.25 0.1 0.01
+}
+Wall {
+  translation -0.625 0 0
+  name "wall(19)"
+  size 0.25 0.1 0.01
+}
+Wall {
+  translation 0.875 0 0.5
+  name "wall(14)"
+  size 0.25 0.1 0.01
+}
+Wall {
+  translation 0.625 0 0.75
+  name "wall(15)"
+  size 0.25 0.1 0.01
+}
+Wall {
+  translation 0.625 0 -0.75
+  name "wall(1)"
+  size 0.25 0.1 0.01
+}
+Wall {
+  translation 0.875 0 -0.25
+  name "wall(10)"
+  size 0.25 0.1 0.01
+}
+Wall {
+  translation -0.5 0 -0.6256
+  rotation 0 1 0 1.57
+  name "wall(6)"
+  size 0.25 0.1 0.01
+}
+Wall {
+  translation -0.2498 0 -0.8754
+  rotation 0 1 0 1.57
+  name "wall(8)"
+  size 0.25 0.1 0.01
+}
+Wall {
+  translation -0.0012 0 0.8748
+  rotation 0 1 0 1.57
+  name "wall(27)"
+  size 0.25 0.1 0.01
+}
+Wall {
+  translation 0.7492 0 0.3754
+  rotation 0 1 0 1.57
+  name "wall(13)"
+  size 0.25 0.1 0.01
+}
+Wall {
+  translation -0.7498 0 -0.8758
+  rotation 0 1 0 1.57
+  name "wall(4)"
+  size 0.25 0.1 0.01
+}
+E-puck {
+  translation 0.099121 0.00384963 0.919959
+  rotation 0 1 0 -0.000795307179585869
+  controller "navigator"
+  supervisor TRUE
+  turretSlot [
+    InertialUnit {
+    }
+    GPS {
+    }
+  ]
+  groundSensorsSlot [
+    Pen {
+      translation -0.06 -9.88558e-08 -0.03
+      rotation 5.01287e-07 5.01287e-07 1 1.5708
+      inkColor 0 1 0
+      inkDensity 1
+      leadSize 0.013
+      write FALSE
+    }
+  ]
+}

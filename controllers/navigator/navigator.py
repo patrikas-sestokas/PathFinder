@@ -76,6 +76,7 @@ def setup_sensors(robot, time_step):
     inertial_unit.enable(1)
 
     pen = robot.getDevice('pen')
+    pen.write(True)
     pen.setInkColor(0xFF0000, 1)
 
     proximity_sensors = [robot.getDevice(f'ps{idx}') for idx in range(8)]

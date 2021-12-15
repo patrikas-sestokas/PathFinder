@@ -4,8 +4,8 @@ WorldInfo {
   coordinateSystem "NUE"
 }
 Viewpoint {
-  orientation -0.9996198045502134 0.022721171213170594 0.01562033065255071 1.2049013981496974
-  position -0.011914409360810407 3.970589475878211 1.6427096658025508
+  orientation 1 0 0 4.71238898038469
+  position 9.704319281279631e-10 4.557289328002724 9.496989600912449e-09
 }
 RectangleArena {
   floorSize 2 2
@@ -190,12 +190,11 @@ E-puck {
   ]
   groundSensorsSlot [
     Pen {
-      translation -0.06 -9.88558e-08 -0.03
-      rotation 5.01287e-07 5.01287e-07 1 1.5708
+      translation 6.01547e-08 1.21536e-07 0.03
+      rotation 5.012869999998741e-07 5.012869999998741e-07 0.9999999999997489 1.5708
       inkColor 0 1 0
       inkDensity 1
-      leadSize 0.013
-      write FALSE
+      leadSize 0.01
     }
   ]
 }

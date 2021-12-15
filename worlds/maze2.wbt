@@ -5,7 +5,7 @@ WorldInfo {
 }
 Viewpoint {
   orientation 1 0 0 4.71238898038469
-  position 0.0003051560168736854 3.8617263322835464 3.501262186455724e-06
+  position 0.0003045478493575197 3.8259755219399585 4.724388776156553e-06
 }
 RectangleArena {
   floorSize 2 2
@@ -167,7 +167,7 @@ E-puck {
   ]
   groundSensorsSlot [
     Pen {
-      translation -0.06 -9.88558e-08 -0.03
+      translation 6.01547e-08 1.21536e-07 0.03
       rotation 5.01287e-07 5.01287e-07 1 1.5708
       inkColor 0 1 0
       inkDensity 1

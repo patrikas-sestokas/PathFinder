@@ -14,7 +14,6 @@ class Tile:
     Calculates which tile the robot's position refers to
     @param robot_pos: Robot's current position in x, y, z
     '''
-
     def __init__(self, robot_pos):
         self.x = robot_pos[0] // self.tile_size
         self.y = robot_pos[2] // self.tile_size
@@ -24,7 +23,6 @@ class Tile:
     @param other: The other tile
     @return: True or False
     '''
-
     def __eq__(self, other):
         if not isinstance(other, Tile):
             return False
@@ -34,15 +32,13 @@ class Tile:
     Display tile coordinates
     @return: Coordinates in text
     '''
-
     def __repr__(self):
         return f'{{x: {self.x}, y: {self.y}}}'
-
+        
     '''
     Converts tile coordinates to the original coordinates
     @return: Converted x and y coordinates
     '''
-
     def as_coordinates(self):
         return self.x * self.tile_size + self.tile_size / 2, self.y * self.tile_size + self.tile_size / 2
 
@@ -54,8 +50,6 @@ enables robot's inertial unit sensor and setups pen for drawing on mode 2
 @time_step: Increment executed at each iteration of the control loop
 @return: Setuped sensors
 '''
-
-
 def setup_sensors(robot, time_step):
     left_motor = robot.getDevice('left wheel motor')
     left_motor.setPosition(float('inf'))
@@ -76,6 +70,7 @@ def setup_sensors(robot, time_step):
     inertial_unit.enable(1)
 
     pen = robot.getDevice('pen')
+    pen.write(True)
     pen.setInkColor(0xFF0000, 1)
 
     proximity_sensors = [robot.getDevice(f'ps{idx}') for idx in range(8)]
@@ -222,7 +217,6 @@ def run_robot(robot):
             left_speed, right_speed = mode_1(proximity_sensors, max_speed)
 
         elif mode == 2:
-            pen.write(True)
             yaw = inertial_unit.getRollPitchYaw()[2]
             new_distance = get_distance(robot_pos, path[-1].as_coordinates())
             # 0.125 path smoothness modifier, should not exceed tile_size / 2, lets the robot cut corners
